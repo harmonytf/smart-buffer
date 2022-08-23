@@ -1,4 +1,5 @@
 /// <reference types="node" />
+/// <reference types="node" />
 /**
  * Object interface for constructing new SmartBuffer instances.
  */
@@ -538,15 +539,32 @@ declare class SmartBuffer {
      */
     readStringNT(arg1?: number | BufferEncoding, encoding?: BufferEncoding): string;
     /**
+     * Reads a null-terminated UTF-16 little-endian String from the current read position.
+     *
+     * @param length { Number | String } The maximum number of bytes to read as a UTF-16 String.
+     *
+     * @return { String }
+     */
+    readWideStringNT(length?: number): string;
+    /**
      * Inserts a null-terminated String.
      *
      * @param value { String } The String value to write.
-     * @param arg2 { Number | String } The offset to write the string to, or the BufferEncoding to use.
+     * @param offset { Number } The offset to write the string to.
      * @param encoding { String } The BufferEncoding to use for writing strings (defaults to instance encoding).
      *
      * @return this
      */
     insertStringNT(value: string, offset: number, encoding?: BufferEncoding): SmartBuffer;
+    /**
+     * Inserts a null-terminated UTF-16 String.
+     *
+     * @param value { String } The String value to write.
+     * @param arg2 { Number } The offset to write the string to.
+     *
+     * @return this
+     */
+    insertWideStringNT(value: string, offset: number): SmartBuffer;
     /**
      * Writes a null-terminated String.
      *
@@ -557,6 +575,15 @@ declare class SmartBuffer {
      * @return this
      */
     writeStringNT(value: string, arg2?: number | BufferEncoding, encoding?: BufferEncoding): SmartBuffer;
+    /**
+     * Writes a null-terminated UTF-16 String (two null bytes at the end).
+     *
+     * @param value { String } The String value to write.
+     * @param offset { Number | String } The offset to write the string to, or the BufferEncoding to use.
+     *
+     * @return this
+     */
+    writeWideStringNT(value: string, offset?: number): SmartBuffer;
     /**
      * Writes a constant size String with null padding up to the specified length.
      *
@@ -738,6 +765,7 @@ declare class SmartBuffer {
      * @param isInsert { Boolean } True if inserting a string, false if writing.
      * @param arg2 { Number | String } The offset to insert the string at, or the BufferEncoding to use.
      * @param encoding { String } The BufferEncoding to use for writing strings (defaults to instance encoding).
+     * @return Number of bytes written
      */
     private _handleString;
     /**

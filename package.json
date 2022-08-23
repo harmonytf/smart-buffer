@@ -1,6 +1,6 @@
 {
   "name": "@harmonytf/smart-buffer",
-  "version": "4.2.2",
+  "version": "4.2.3",
   "description": "smart-buffer is a Buffer wrapper that adds automatic read & write offset tracking, string operations, data insertions, and more.",
   "main": "build/smartbuffer.js",
   "contributors": ["syvita", "p0358"],
