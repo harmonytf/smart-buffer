@@ -481,6 +481,8 @@ buff.readStringNT(10); // 'hello'
 buff.readStringNT(); // 'world'
 ```
 
+### buff.readWideStringNT()
+### buff.readWideStringNT(length)
 ### buff.writeStringNT(value)
 ### buff.writeStringNT(value[, offset])
 ### buff.writeStringNT(value[, encoding])
@@ -499,6 +501,7 @@ buff.writeStringNT('hello', 'utf8') // Auto managed offset
 buff.writeStringNT('hello', 2, 'utf8');
 ```
 
+### buff.writeWideStringNT(value[, offset])
 ### buff.insertStringNT(value, offset[, encoding])
 - ```value``` *{string}* The string value to write.
 - ```offset``` *{number}* The offset to write this value to.
@@ -512,6 +515,7 @@ buff.insertStringNT('hello', 2);
 buff.insertStringNT('hello', 2, 'utf8');
 ```
 
+### buff.insertWideStringNT(value[, offset])
 ### buff.writeStringPadded(value, length[, encoding, offset])
 - ```value``` *{string}* The string value to write.
 - ```length``` *{string}* The length of the string field.

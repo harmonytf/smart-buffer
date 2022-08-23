@@ -559,6 +559,211 @@ describe('Reading/Writing To/From SmartBuffer', () => {
     });
   });
 
+  describe('Padded UTF-16 strings', () => {
+    let reader = new SmartBuffer();
+    reader.writeStringPadded('hello', 64, 'utf16le');
+    reader.writeString('impostor', 12, 'utf16le');
+    reader.writeWideStringNT('world');
+
+    it('should be at the padding write offset', () => {
+      assert.strictEqual(reader.writeOffset, 64 + 2*(5+1));
+      assert.strictEqual(reader.length, 64 + 2*(5+1));
+    });
+
+    it('should equal hello', () => {
+      assert.strictEqual(reader.readWideStringNT(64), 'hello');
+      assert.strictEqual(reader.readOffset, 64);
+    });
+
+    it('should equal world', () => {
+      assert.strictEqual(reader.readWideStringNT(), 'world');
+      assert.strictEqual(reader.readOffset, reader.length);
+    });
+
+    it('should equal hello', () => {
+      reader.readOffset = 0;
+      assert.strictEqual(reader.readWideStringNT(), 'hello');
+      assert.strictEqual(reader.readOffset, 12);
+      assert.strictEqual(reader.readWideStringNT(), 'impostor');
+    });
+
+    it('should equal hello', () => {
+      reader.readOffset = 0;
+      assert.strictEqual(reader.readWideStringNT(2*(5+1)), 'hello');
+      assert.strictEqual(reader.readOffset, 12);
+    });
+
+    it('should equal hello', () => {
+      reader.readOffset = 0;
+      assert.strictEqual(reader.readWideStringNT(2*5), 'hello');
+      assert.strictEqual(reader.readOffset, 10);
+    });
+  });
+
+  describe('UTF-16 strings', () => {
+    let reader = new SmartBuffer();
+    reader.writeString('hello', 'utf16le'); // no NT
+
+    it('should have 10 bytes of length', () => {
+      assert.strictEqual(reader.length, 2*5);
+    });
+
+    it('should be at the write offset', () => {
+      assert.strictEqual(reader.writeOffset, 2*5);
+      assert.strictEqual(reader.length, 2*5);
+    });
+
+    it('should equal hello', () => {
+      assert.strictEqual(reader.readWideStringNT(2*5), 'hello');
+      assert.strictEqual(reader.readOffset, 2*5);
+    });
+
+    it('should equal hello', () => {
+      reader.readOffset = 0;
+      assert.strictEqual(reader.readWideStringNT(), 'hello');
+      assert.strictEqual(reader.readOffset, 2*5);
+    });
+
+    it('should equal hello', () => {
+      reader.readOffset = 0;
+      assert.strictEqual(reader.readString(2*5, 'utf16le'), 'hello');
+      assert.strictEqual(reader.readOffset, 2*5);
+    });
+  });
+
+  describe('Single-length string', () => {
+    let reader = new SmartBuffer();
+    reader.writeString('a'); // no NT
+
+    it('should be at the write offset', () => {
+      assert.strictEqual(reader.writeOffset, 1);
+      assert.strictEqual(reader.length, 1);
+    });
+
+    it('should equal a', () => {
+      assert.strictEqual(reader.readStringNT(1), 'a');
+      assert.strictEqual(reader.readOffset, 1);
+    });
+
+    it('should equal a', () => {
+      reader.readOffset = 0;
+      assert.strictEqual(reader.readStringNT(), 'a');
+      assert.strictEqual(reader.readOffset, 1);
+    });
+
+    it('should equal a', () => {
+      reader.readOffset = 0;
+      assert.strictEqual(reader.readString(1), 'a');
+      assert.strictEqual(reader.readOffset, 1);
+    });
+
+    it('should equal a', () => {
+      reader.readOffset = 0;
+      assert.strictEqual(reader.readString(), 'a');
+      assert.strictEqual(reader.readOffset, 1);
+    });
+  });
+
+  describe('Single-length UTF-16 string', () => {
+    let reader = new SmartBuffer();
+    reader.writeString('a', 'utf16le'); // no NT
+
+    it('should be at the write offset', () => {
+      assert.strictEqual(reader.writeOffset, 2);
+      assert.strictEqual(reader.length, 2);
+    });
+
+    it('should equal a', () => {
+      assert.strictEqual(reader.readWideStringNT(2), 'a');
+      assert.strictEqual(reader.readOffset, 2);
+    });
+
+    it('should equal a', () => {
+      reader.readOffset = 0;
+      assert.strictEqual(reader.readWideStringNT(), 'a');
+      assert.strictEqual(reader.readOffset, 2);
+    });
+
+    it('should equal a', () => {
+      reader.readOffset = 0;
+      assert.strictEqual(reader.readString(2, 'utf16le'), 'a');
+      assert.strictEqual(reader.readOffset, 2);
+    });
+  });
+
+  describe('Single-length UTF-16 NT string', () => {
+    let reader = new SmartBuffer();
+    reader.writeWideStringNT('a');
+
+    it('should be at the write offset', () => {
+      assert.strictEqual(reader.writeOffset, 4);
+      assert.strictEqual(reader.length, 4);
+    });
+
+    it('should equal a', () => {
+      reader.readOffset = 0;
+      assert.strictEqual(reader.readWideStringNT(2), 'a');
+      assert.strictEqual(reader.readOffset, 2);
+    });
+
+    it('should equal a', () => {
+      reader.readOffset = 0;
+      assert.strictEqual(reader.readWideStringNT(4), 'a');
+      assert.strictEqual(reader.readOffset, 4);
+    });
+
+    it('should equal a', () => {
+      reader.readOffset = 0;
+      assert.strictEqual(reader.readWideStringNT(), 'a');
+      assert.strictEqual(reader.readOffset, 4);
+    });
+
+    it('should equal a', () => {
+      reader.readOffset = 0;
+      assert.strictEqual(reader.readString(2, 'utf16le'), 'a');
+      assert.strictEqual(reader.readOffset, 2);
+    });
+  });
+
+  describe('Null NT string', () => {
+    let reader = new SmartBuffer();
+    reader.writeUInt8(0);
+
+    it('should equal ""', () => {
+      assert.strictEqual(reader.readStringNT(), '');
+      assert.strictEqual(reader.readOffset, 1);
+    });
+
+    it('should equal ""', () => {
+      reader.readOffset = 0;
+      assert.strictEqual(reader.readStringNT(1), '');
+      assert.strictEqual(reader.readOffset, 1);
+    });
+
+    it('should equal ""', () => {
+      reader.readOffset = 0;
+      assert.strictEqual(reader.readStringNT(123), '');
+      assert.strictEqual(reader.readOffset, 1);
+    });
+  });
+
+  describe('Null UTF-16 NT string', () => {
+    let reader = new SmartBuffer();
+    reader.writeUInt16LE(0);
+
+    it('should equal ""', () => {
+      reader.readOffset = 0;
+      assert.strictEqual(reader.readWideStringNT(), '');
+      assert.strictEqual(reader.readOffset, 2);
+    });
+
+    it('should equal ""', () => {
+      reader.readOffset = 0;
+      assert.strictEqual(reader.readWideStringNT(2), '');
+      assert.strictEqual(reader.readOffset, 2);
+    });
+  });
+
   describe('Buffer Values', () => {
     describe('Writing buffer to position 0', () => {
       let buff = new SmartBuffer();
