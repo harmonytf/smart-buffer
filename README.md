@@ -1,9 +1,11 @@
-smart-buffer  [![Build Status](https://travis-ci.org/JoshGlazebrook/smart-buffer.svg?branch=master)](https://travis-ci.org/JoshGlazebrook/smart-buffer)  [![Coverage Status](https://coveralls.io/repos/github/JoshGlazebrook/smart-buffer/badge.svg?branch=master)](https://coveralls.io/github/JoshGlazebrook/smart-buffer?branch=master)
+smart-buffer  [![Build Status](https://travis-ci.org/harmonytf/smart-buffer.svg?branch=master)](https://travis-ci.org/harmonytf/smart-buffer)  [![Coverage Status](https://coveralls.io/repos/github/harmonytf/smart-buffer/badge.svg?branch=master)](https://coveralls.io/github/harmonytf/smart-buffer?branch=master)
 =============
 
 smart-buffer is a Buffer wrapper that adds automatic read & write offset tracking, string operations, data insertions, and more.
 
-![stats](https://nodei.co/npm/smart-buffer.png?downloads=true&downloadRank=true&stars=true "stats")
+This repository contains a patched version of the original library, adding functionality that the original author refused to have.
+
+![stats](https://nodei.co/npm/@harmonytf/smart-buffer.png?downloads=true&downloadRank=true&stars=true "stats")
 
 **Key Features**:
 * Proxies all of the Buffer write and read functions
@@ -36,11 +38,11 @@ Legacy documentation for version 3 and prior can be found [here](https://github.
 
 ## Installing:
 
-`yarn add smart-buffer`
+`yarn add @harmonytf/smart-buffer`
 
 or
 
-`npm install smart-buffer`
+`npm install @harmonytf/smart-buffer`
 
 Note: The published NPM package includes the built javascript library.
 If you cloned this repo and wish to build the library manually use:
@@ -54,7 +56,7 @@ If you cloned this repo and wish to build the library manually use:
 const SmartBuffer = require('smart-buffer').SmartBuffer;
 
 // Typescript
-import { SmartBuffer, SmartBufferOptions} from 'smart-buffer';
+import { SmartBuffer, SmartBufferOptions } from 'smart-buffer';
 ```
 
 ### Simple Example
@@ -464,6 +466,20 @@ buff.readStringNT(); // 'hello'
 // If we called this again:
 buff.readStringNT(); // ' there'
 ```
+### buff.readStringNT(length, encoding)
+- ```length``` *{number}* The field length to use.. **Default:** ```null```.
+- ```encoding``` *{string}* The string encoding to use. **Default:** ```utf8```.
+
+Read a null terminated string value from a constant-length field. It will read everything within the specified length if a null terminator is not found before. Otherwise, it is going to stop at the null-terminator and skip the remaining bytes.
+
+Examples:
+```javascript
+const buff = SmartBuffer.fromBuffer(Buffer.from('hello\0\0\0\0\0world\0', 'utf8'));
+buff.readStringNT(10); // 'hello'
+
+// If we called this afterwards:
+buff.readStringNT(); // 'world'
+```
 
 ### buff.writeStringNT(value)
 ### buff.writeStringNT(value[, offset])
@@ -494,6 +510,21 @@ Examples:
 ```javascript
 buff.insertStringNT('hello', 2);
 buff.insertStringNT('hello', 2, 'utf8');
+```
+
+### buff.writeStringPadded(value, length[, encoding, offset])
+- ```value``` *{string}* The string value to write.
+- ```length``` *{string}* The length of the string field.
+- ```encoding``` *{string}* An optional string encoding to use. **Default:** ```utf8```
+- ```offset``` *{number}* The offset to write this value to. **Default:** ```Auto managed offset```
+
+Write a string value which will be padded with null bytes up until the specified length. If the string's length equals the specified `length` parameter, no null bytes will be added at the end.
+
+Examples:
+```javascript
+buff.writeStringPadded('hello', 10); // Auto managed offset   <Buffer 68 65 6c 6c 6f 00 00 00 00 00>
+buff.writeStringPadded('hello', 10, 'utf8', 2); // <Buffer 00 00 68 65 6c 6c 6f 00 00 00 00 00>
+buff.writeStringPadded('hello', 10, 'utf8') // Auto managed offset
 ```
 
 ## Buffers

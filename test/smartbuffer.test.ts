@@ -153,10 +153,10 @@ describe('Constructing a SmartBuffer', () => {
       }, Error);
     });
 
-    it('should throw and exception when given an object that is not a SmartBufferOptions', () => {
+    it('should throw an exception when given an object that is not a SmartBufferOptions', () => {
       assert.throws(() => {
         // tslint:disable-next-line:no-unused-variable
-        const reader = SmartBuffer.fromOptions(null);
+        const reader = SmartBuffer.fromOptions(null!);
       }, Error);
     });
   });
@@ -496,6 +496,66 @@ describe('Reading/Writing To/From SmartBuffer', () => {
     reader.readOffset = 10;
     it('Should read the correct string from the original position it was written to.', () => {
       assert.strictEqual(reader.readString(), str);
+    });
+  });
+
+  describe('Reading null-terminated strings with length specified', () => {
+    let reader = new SmartBuffer();
+    reader.writeString('hello\0test\0bleh');
+
+    it('should equal hello', () => {
+      assert.strictEqual(reader.readStringNT(5+1), 'hello'); // includes null-terminator in length
+    });
+
+    it('should equal: test', () => {
+      assert.strictEqual(reader.readStringNT(4+1+4), 'test'); // should stop reading at null terminator despite more length being specified
+      assert.strictEqual(reader.readOffset, reader.length); // nonetheless it should skip the whole specified length, in this case until the end of the file
+    });
+
+    it('should equal: test\\u0000bleh', () => {
+      reader.readOffset = 6;
+      assert.strictEqual(reader.readString(4+1+4), 'test\u0000bleh');
+    });
+
+    it('should equal hell', () => {
+      reader.readOffset = 0;
+      assert.strictEqual(reader.readStringNT(4), 'hell');
+    });
+  });
+
+  describe('Padded strings', () => {
+    let reader = new SmartBuffer();
+    reader.writeStringPadded('hello', 32);
+    reader.writeStringNT('world');
+
+    it('should be at the padding write offset', () => {
+      assert.strictEqual(reader.writeOffset, 32 + 5 + 1);
+    });
+
+    it('should equal hello', () => {
+      assert.strictEqual(reader.readStringNT(32), 'hello');
+      assert.strictEqual(reader.readOffset, 32);
+    });
+
+    it('should equal world', () => {
+      assert.strictEqual(reader.readStringNT(), 'world');
+      assert.strictEqual(reader.readOffset, reader.length);
+    });
+  });
+
+  describe('Padded strings (with no padding)', () => {
+    let reader = new SmartBuffer();
+    reader.writeStringPadded('hello', 5);
+
+    it('should equal hello', () => {
+      assert.strictEqual(reader.readStringNT(5), 'hello');
+      assert.strictEqual(reader.readOffset, reader.length);
+    });
+
+    it('should equal hello', () => {
+      reader.readOffset = 0;
+      assert.strictEqual(reader.readString(5), 'hello');
+      assert.strictEqual(reader.readOffset, reader.length);
     });
   });
 

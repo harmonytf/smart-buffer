@@ -1,4 +1,5 @@
 /// <reference types="node" />
+/// <reference types="node" />
 /**
  * Object interface for constructing new SmartBuffer instances.
  */
@@ -530,11 +531,13 @@ declare class SmartBuffer {
     /**
      * Reads a null-terminated String from the current read position.
      *
+     * @param arg1 { Number | String } The maximum number of bytes to read as a String, or the BufferEncoding to use for
+     *             the string (Defaults to instance level encoding).
      * @param encoding { String } The BufferEncoding to use for the string (Defaults to instance level encoding).
      *
      * @return { String }
      */
-    readStringNT(encoding?: BufferEncoding): string;
+    readStringNT(arg1?: number | BufferEncoding, encoding?: BufferEncoding): string;
     /**
      * Inserts a null-terminated String.
      *
@@ -555,6 +558,17 @@ declare class SmartBuffer {
      * @return this
      */
     writeStringNT(value: string, arg2?: number | BufferEncoding, encoding?: BufferEncoding): SmartBuffer;
+    /**
+     * Writes a constant size String with null padding up to the specified length.
+     *
+     * @param value { String } The String value to write.
+     * @param length { Number } The constant length of the field.
+     * @param encoding { String } The BufferEncoding to use for writing strings (defaults to instance encoding).
+     * @param offset { Number } The offset to write the string to, or the BufferEncoding to use.
+     *
+     * @return this
+     */
+    writeStringPadded(value: string, length: number, encoding?: BufferEncoding, offset?: number): SmartBuffer;
     /**
      * Reads a Buffer from the internal read position.
      *
@@ -606,6 +620,51 @@ declare class SmartBuffer {
      */
     writeBufferNT(value: Buffer, offset?: number): SmartBuffer;
     /**
+     * Inserts VarInt.
+     *
+     * @param value { Number } The number to write.
+     * @param offset { Number } The offset to insert the number to.
+     *
+     * @return { Number }
+     */
+    insertVarInt(value: number, offset: number): SmartBuffer;
+    /**
+     * Writes a VarInt to the current write position.
+     *
+     * @param value { Number } The number to write.
+     * @param offset { Number } The offset to write the number to.
+     *
+     * @return { Number }
+     */
+    writeVarInt(value: number, offset?: number): SmartBuffer;
+    /**
+     * Reads a VarInt from the internal read position.
+     *
+     * @return { Number }
+     */
+    readVarInt(): number;
+    /**
+     * Skips reading for a specified `length` from the current read position.
+     *
+     * This method is just sugar for incrementing the read offset in a chainable way.
+     *
+     * @param length { Number } The length of data to skip.
+     *
+     * @return this
+     */
+    readSkip(length: number): SmartBuffer;
+    /**
+     * Skips writing for a specified `length` from the current write position.
+     * The buffer will be zero-padded for the skipped range.
+     *
+     * This method is just sugar for incrementing the write offset in a chainable way.
+     *
+     * @param length { Number } The length of data to skip.
+     *
+     * @return this
+     */
+    writeSkip(length: number): SmartBuffer;
+    /**
      * Clears the SmartBuffer instance to its original empty state.
      */
     clear(): SmartBuffer;
@@ -620,40 +679,43 @@ declare class SmartBuffer {
      *
      * @return { Number }
      */
+    get readOffset(): number;
     /**
-    * Sets the read offset value of the SmartBuffer instance.
-    *
-    * @param offset { Number } - The offset value to set.
-    */
-    readOffset: number;
+     * Sets the read offset value of the SmartBuffer instance.
+     *
+     * @param offset { Number } - The offset value to set.
+     */
+    set readOffset(offset: number);
     /**
      * Gets the current write offset value of the SmartBuffer instance.
      *
      * @return { Number }
      */
+    get writeOffset(): number;
     /**
-    * Sets the write offset value of the SmartBuffer instance.
-    *
-    * @param offset { Number } - The offset value to set.
-    */
-    writeOffset: number;
+     * Sets the write offset value of the SmartBuffer instance.
+     *
+     * @param offset { Number } - The offset value to set.
+     */
+    set writeOffset(offset: number);
     /**
      * Gets the currently set string encoding of the SmartBuffer instance.
      *
      * @return { BufferEncoding } The string Buffer encoding currently set.
      */
+    get encoding(): BufferEncoding;
     /**
-    * Sets the string encoding of the SmartBuffer instance.
-    *
-    * @param encoding { BufferEncoding } The string Buffer encoding to set.
-    */
-    encoding: BufferEncoding;
+     * Sets the string encoding of the SmartBuffer instance.
+     *
+     * @param encoding { BufferEncoding } The string Buffer encoding to set.
+     */
+    set encoding(encoding: BufferEncoding);
     /**
      * Gets the underlying internal Buffer. (This includes unmanaged data in the Buffer)
      *
      * @return { Buffer } The Buffer value.
      */
-    readonly internalBuffer: Buffer;
+    get internalBuffer(): Buffer;
     /**
      * Gets the value of the internal managed Buffer (Includes managed data only)
      *
@@ -751,5 +813,6 @@ declare class SmartBuffer {
      * @returns SmartBuffer this buffer
      */
     private _writeNumberValue;
+    private _intToVarInt;
 }
 export { SmartBufferOptions, SmartBuffer };
