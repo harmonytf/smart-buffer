@@ -53,10 +53,10 @@ If you cloned this repo and wish to build the library manually use:
 
 ```javascript
 // Javascript
-const SmartBuffer = require('smart-buffer').SmartBuffer;
+const SmartBuffer = require('@harmonytf/smart-buffer').SmartBuffer;
 
 // Typescript
-import { SmartBuffer, SmartBufferOptions } from 'smart-buffer';
+import { SmartBuffer, SmartBufferOptions } from '@harmonytf/smart-buffer';
 ```
 
 ### Simple Example
