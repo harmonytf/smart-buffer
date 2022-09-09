@@ -577,7 +577,8 @@ describe('Reading/Writing To/From SmartBuffer', () => {
 
     it('should equal world', () => {
       assert.strictEqual(reader.readWideStringNT(), 'world');
-      assert.strictEqual(reader.readOffset, reader.length);
+      assert.strictEqual(reader.readOffset, 64 + (5+1)*2);
+      //assert.strictEqual(reader.readOffset, reader.length);
     });
 
     it('should equal hello', () => {
@@ -761,6 +762,48 @@ describe('Reading/Writing To/From SmartBuffer', () => {
       reader.readOffset = 0;
       assert.strictEqual(reader.readWideStringNT(2), '');
       assert.strictEqual(reader.readOffset, 2);
+    });
+  });
+
+  describe('Two UTF-16 strings with static length', () => {
+    let reader = new SmartBuffer();
+    reader.writeStringPadded("test1", 50, "utf16le");
+    reader.writeStringPadded("test2", 100, "utf16le");
+    it('should have written the strings at correct offsets', () => {
+      reader.readOffset = 0;
+      assert.strictEqual(reader.readWideStringNT(50), 'test1');
+      assert.strictEqual(reader.readOffset, 50);
+      reader.readOffset = 50;
+      assert.strictEqual(reader.readWideStringNT(100), 'test2');
+      assert.strictEqual(reader.readOffset, 150);
+    });
+    it('should read with correct automatic offset', () => {
+      reader.readOffset = 0;
+      assert.strictEqual(reader.readWideStringNT(50), 'test1');
+      assert.strictEqual(reader.readOffset, 50);
+      assert.strictEqual(reader.readWideStringNT(100), 'test2');
+      assert.strictEqual(reader.readOffset, 150);
+    });
+  });
+
+  describe('Two UTF-8 strings with static length', () => {
+    let reader = new SmartBuffer();
+    reader.writeStringPadded("test1", 50, "utf8");
+    reader.writeStringPadded("test2", 100, "utf8");
+    it('should have written the strings at correct offsets', () => {
+      reader.readOffset = 0;
+      assert.strictEqual(reader.readStringNT(50), 'test1');
+      assert.strictEqual(reader.readOffset, 50);
+      reader.readOffset = 50;
+      assert.strictEqual(reader.readStringNT(100), 'test2');
+      assert.strictEqual(reader.readOffset, 150);
+    });
+    it('should read with correct automatic offset', () => {
+      reader.readOffset = 0;
+      assert.strictEqual(reader.readStringNT(50), 'test1');
+      assert.strictEqual(reader.readOffset, 50);
+      assert.strictEqual(reader.readStringNT(100), 'test2');
+      assert.strictEqual(reader.readOffset, 150);
     });
   });
 

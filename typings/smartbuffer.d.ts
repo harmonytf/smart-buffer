@@ -1,5 +1,4 @@
 /// <reference types="node" />
-/// <reference types="node" />
 /**
  * Object interface for constructing new SmartBuffer instances.
  */
@@ -579,7 +578,7 @@ declare class SmartBuffer {
      * Writes a null-terminated UTF-16 String (two null bytes at the end).
      *
      * @param value { String } The String value to write.
-     * @param offset { Number | String } The offset to write the string to, or the BufferEncoding to use.
+     * @param offset { Number } The offset to write the string to.
      *
      * @return this
      */
@@ -705,43 +704,40 @@ declare class SmartBuffer {
      *
      * @return { Number }
      */
-    get readOffset(): number;
     /**
-     * Sets the read offset value of the SmartBuffer instance.
-     *
-     * @param offset { Number } - The offset value to set.
-     */
-    set readOffset(offset: number);
+    * Sets the read offset value of the SmartBuffer instance.
+    *
+    * @param offset { Number } - The offset value to set.
+    */
+    readOffset: number;
     /**
      * Gets the current write offset value of the SmartBuffer instance.
      *
      * @return { Number }
      */
-    get writeOffset(): number;
     /**
-     * Sets the write offset value of the SmartBuffer instance.
-     *
-     * @param offset { Number } - The offset value to set.
-     */
-    set writeOffset(offset: number);
+    * Sets the write offset value of the SmartBuffer instance.
+    *
+    * @param offset { Number } - The offset value to set.
+    */
+    writeOffset: number;
     /**
      * Gets the currently set string encoding of the SmartBuffer instance.
      *
      * @return { BufferEncoding } The string Buffer encoding currently set.
      */
-    get encoding(): BufferEncoding;
     /**
-     * Sets the string encoding of the SmartBuffer instance.
-     *
-     * @param encoding { BufferEncoding } The string Buffer encoding to set.
-     */
-    set encoding(encoding: BufferEncoding);
+    * Sets the string encoding of the SmartBuffer instance.
+    *
+    * @param encoding { BufferEncoding } The string Buffer encoding to set.
+    */
+    encoding: BufferEncoding;
     /**
      * Gets the underlying internal Buffer. (This includes unmanaged data in the Buffer)
      *
      * @return { Buffer } The Buffer value.
      */
-    get internalBuffer(): Buffer;
+    readonly internalBuffer: Buffer;
     /**
      * Gets the value of the internal managed Buffer (Includes managed data only)
      *

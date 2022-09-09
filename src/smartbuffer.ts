@@ -861,11 +861,11 @@ class SmartBuffer {
     // Add padding for static length strings
     let padding = 0;
     if (lengthVal) {
-      padding = lengthVal - (nullPos - this._readOffset) - (this._buff[nullPos] === 0x00 ? 1 : 0);
+      padding = lengthVal - (nullPos - this._readOffset) - ((nullPos < this.length && this._buff[nullPos] === 0x00) ? 1 : 0);
     }
 
     // Increment internal Buffer read offset
-    this._readOffset = nullPos + (this._buff[nullPos] === 0x00 ? 1 : 0) + padding;
+    this._readOffset = nullPos + ((nullPos < this.length && this._buff[nullPos]) === 0x00 ? 1 : 0) + padding;
 
     return value.toString(encoding || this._encoding);
   }
@@ -903,7 +903,7 @@ class SmartBuffer {
     const value = this._buff.slice(this._readOffset, nullPos);
 
     if (lengthVal) {
-      this._readOffset = lengthVal;
+      this._readOffset += lengthVal;
     } else {
       this._readOffset = Math.min(this.length, nullPos + 2);
     }
@@ -966,13 +966,13 @@ class SmartBuffer {
    * Writes a null-terminated UTF-16 String (two null bytes at the end).
    *
    * @param value { String } The String value to write.
-   * @param offset { Number | String } The offset to write the string to, or the BufferEncoding to use.
+   * @param offset { Number } The offset to write the string to.
    *
    * @return this
    */
   writeWideStringNT(value: string, offset?: number): SmartBuffer {
     // Write Values
-    const written = this._handleString(value, true, offset, 'utf16le');
+    const written = this._handleString(value, true, typeof offset === 'number' ? offset : undefined, 'utf16le');
     this.writeUInt16LE(0x0000, typeof offset === 'number' ? offset + written : this.writeOffset);
     return this;
   }
